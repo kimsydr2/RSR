@@ -1,0 +1,41 @@
+# Copy to config.yaml and edit. config.yaml is git-ignored.
+timezone: America/New_York
+db_path: cadet_tracker.db
+
+source:
+  type: xlsx                 # xlsx (local file, for testing) | gsheet (live Google Sheet)
+  path: sample/sample_attendance.xlsx
+  sheet_id: ""               # gsheet only: the long ID in the sheet URL
+  worksheet: Attendance      # tab name that holds the weekly attendance grid
+  credentials: service_account.json   # gsheet only: read-only service account key
+
+# Header text of the attendance grid (matched case-insensitively)
+columns:
+  rank: Rank
+  last: Last Name
+  first: First Name
+
+# One entry per attendance column. weekday: 0=Mon ... 6=Sun
+events:
+  - {name: Monday PT,    column: Monday,    weekday: 0, time: "06:30"}
+  - {name: Tuesday PT,   column: Tuesday,   weekday: 1, time: "06:30"}
+  - {name: Wednesday PT, column: Wednesday, weekday: 2, time: "06:30"}
+  - {name: Thursday PT,  column: Thursday,  weekday: 3, time: "06:30"}
+  - {name: Friday PT,    column: Friday,    weekday: 4, time: "06:30"}
+  - {name: Corps Lab,    column: Corps Lab, weekday: 3, time: "16:00"}
+
+schedule:
+  sunday_reminder: "12:00"          # Sunday: remind everyone still missing a response
+  response_deadline: "21:00"        # Sunday: responses due
+  preemptive_warning_minutes: 30    # final warning to the cadet before the 1UP is told
+  two_up_delay_hours: 12            # still missing this long after deadline -> notify 2UP
+  pre_event_minutes: 60             # squad roster to 1UP this long before each event
+  change_alerts: true               # tell the 1UP when a cadet changes an existing answer
+
+history:
+  repeat_offender_threshold: 3      # this many misses in total -> 2UP is looped in immediately
+
+notify:
+  dry_run: true                     # true = print + log to outbox_log.txt, send nothing
+  email_from: cadet-tracker@example.com
+  # SMTP credentials come from env vars: SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS

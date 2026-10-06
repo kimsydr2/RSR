@@ -1,0 +1,21 @@
+# Copy to contacts.yaml. Hardcoded chain of command (1UP / 2UP) per cadet.
+# Keys must match "Last Name, First Name" exactly as written in the sheet.
+defaults:
+  channel: email        # email | sms | both
+  timing: immediate     # immediate | digest  (digest = one bundled message per day)
+  digest_time: "17:00"
+
+cadets:
+  # --- platoon leadership ---
+  "Park, Alex":   {email: apark@vt.edu,   phone: "5405550100", carrier: verizon, channel: both, role: PL}
+  "Nguyen, Sam":  {email: snguyen@vt.edu, phone: "5405550101", carrier: att, one_up: "Park, Alex", role: PSG, timing: digest}
+  # --- squad 1 ---
+  "Reed, Jordan": {email: jreed@vt.edu,   phone: "5405550102", carrier: tmobile, channel: sms, one_up: "Nguyen, Sam", two_up: "Park, Alex", role: SL}
+  "Cole, Taylor": {email: tcole@vt.edu,   phone: "5405550103", carrier: verizon, channel: sms, one_up: "Reed, Jordan", two_up: "Nguyen, Sam"}
+  "Diaz, Morgan": {email: mdiaz@vt.edu,   phone: "5405550104", carrier: att, channel: sms, one_up: "Reed, Jordan", two_up: "Nguyen, Sam"}
+  "Hart, Casey":  {email: chart@vt.edu,   one_up: "Reed, Jordan", two_up: "Nguyen, Sam"}
+  # --- squad 2 ---
+  "Wells, Riley": {email: rwells@vt.edu,  phone: "5405550105", carrier: verizon, channel: sms, one_up: "Nguyen, Sam", two_up: "Park, Alex", role: SL}
+  "Moss, Avery":  {email: amoss@vt.edu,   phone: "5405550106", carrier: tmobile, channel: sms, one_up: "Wells, Riley", two_up: "Nguyen, Sam"}
+  "Fox, Jamie":   {email: jfox@vt.edu,    one_up: "Wells, Riley", two_up: "Nguyen, Sam"}
+  "Lane, Drew":   {email: dlane@vt.edu,   phone: "5405550107", carrier: att, channel: both, one_up: "Wells, Riley", two_up: "Nguyen, Sam"}

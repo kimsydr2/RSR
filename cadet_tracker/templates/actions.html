@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% set active = 'actions' %}
+{% block body %}
+<h1>Messages</h1>
+<p class="sub">
+  {% if dry_run %}Practice mode is on: messages are recorded below instead of being sent.
+  {% else %}Live: messages below were delivered.{% endif %}
+</p>
+
+<section>
+<div style="display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end">
+  <form method="post" class="inline">
+    <input type="hidden" name="do" value="tick">
+    <button type="submit">Check the sheet now</button>
+  </form>
+  <form method="post" class="inline" style="display:flex;gap:8px;align-items:flex-end">
+    <input type="hidden" name="do" value="test">
+    <div><label for="c">Send a test message to</label>
+      <select id="c" name="cadet">{% for p in people %}<option value="{{ p }}">{{ p }}</option>{% endfor %}</select></div>
+    <button class="ghost" type="submit">Send test</button>
+  </form>
+</div>
+<p class="note" style="margin-top:10px">Checking runs the same pass as the scheduler: anything already sent is not sent twice.</p>
+</section>
+
+{% if queue %}
+<section>
+<h2>Waiting to go out</h2>
+<div class="scroll"><table>
+  <thead><tr><th>Due</th><th>To</th><th>Subject</th><th>Status</th></tr></thead>
+  <tbody>{% for q in queue %}
+    <tr>
+      <td class="note">{{ q.due|local(tz) }}</td>
+      <td class="name">{{ q.recipient }}</td>
+      <td>{{ q.subject }}</td>
+      <td>
+        {% if q.error %}<span class="pill miss">failed {{ q.attempts }}×</span>
+          <span class="note">{{ q.error }}</span>
+        {% elif q.overdue %}<span class="pill no">due now</span>
+        {% else %}<span class="pill">held for digest</span>{% endif %}
+      </td>
+    </tr>
+  {% endfor %}</tbody>
+</table></div>
+<p class="note" style="margin-top:8px">
+  Digest messages wait for their recipient's daily time. Anything marked due now or failed
+  goes out on the next check — failures are retried, not dropped.
+</p>
+</section>
+{% endif %}
+
+<section>
+<h2>Sent</h2>
+{% if sent %}
+<div class="scroll"><table>
+  <thead><tr><th>Time</th><th>To</th><th>Subject</th><th>Message</th></tr></thead>
+  <tbody>{% for at, rcpt, subj, body in sent %}
+    <tr><td class="note">{{ at|local(tz) }}</td><td class="name">{{ rcpt }}</td>
+        <td>{{ subj }}</td><td class="log" style="white-space:pre-wrap">{{ body }}</td></tr>
+  {% endfor %}</tbody>
+</table></div>
+{% else %}
+<p class="empty">Nothing sent yet. Use “Check the sheet now” to run a pass.</p>
+{% endif %}
+</section>
+{% endblock %}

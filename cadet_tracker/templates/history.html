@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% set active = 'history' %}
+{% block body %}
+<h1>History</h1>
+<p class="sub">Every deadline and event a cadet was still blank for. {{ threshold }} misses sends the next one straight to the 2UP.</p>
+{% if rows %}
+<div class="scroll">
+<table>
+  <thead><tr><th>Cadet</th><th>Misses</th><th>Deadline</th><th>At event</th><th>Answer changes</th><th>Last miss</th><th></th></tr></thead>
+  <tbody>
+  {% for r in rows %}
+    <tr>
+      <td class="name">{{ r.cadet }}</td>
+      <td>{{ r.total }}</td><td>{{ r.deadline }}</td><td>{{ r.event }}</td><td>{{ r.changes }}</td>
+      <td class="note">{{ r.last|local(tz) }}</td>
+      <td>{% if r.repeat %}<span class="flag">repeat</span>{% endif %}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% else %}
+<p class="empty">No misses recorded yet. History fills in after the first deadline passes.</p>
+{% endif %}
+{% endblock %}

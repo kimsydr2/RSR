@@ -1,0 +1,10 @@
+# Real cadet data / secrets must never land in the public repo
+config.yaml
+contacts.yaml
+service_account.json
+*.db
+outbox_log.txt
+__pycache__/
+.pytest_cache/
+.venv/
+venv/

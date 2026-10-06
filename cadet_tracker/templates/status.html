@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% set active = 'status' %}
+{% block body %}
+<h1>Week of {{ week }}</h1>
+<p class="sub">Read straight from the attendance sheet. Cadets with blanks are listed first.</p>
+
+<div class="stats">
+  <div><span class="count">{{ missing_total }}</span><span>blank responses</span></div>
+  <div><span class="count">{{ rows|selectattr('missing')|list|length }}</span><span>cadets with a blank</span></div>
+  <div><span class="count">{{ rows|length }}</span><span>cadets on the sheet</span></div>
+</div>
+
+<div class="scroll">
+<table>
+  <thead><tr><th>Cadet</th><th>Role</th>{% for name, col in cols %}<th>{{ name }}</th>{% endfor %}<th>1UP</th></tr></thead>
+  <tbody>
+  {% for r in rows %}
+    <tr>
+      <td class="name">{{ r.cadet.name }}</td>
+      <td class="note">{{ r.cadet.role or r.cadet.rank }}</td>
+      {% for cell in r.cells %}
+        <td>
+          {% if cell.status == 'MISSING' %}<span class="pill miss">no response</span>
+          {% elif cell.status == 'ATTENDING' %}<span class="pill yes">yes</span>
+          {% elif cell.status == 'NOT_ATTENDING' %}<span class="pill no">no · {{ cell.reason or '—' }}</span>
+          {% elif cell.status == 'LATE' %}<span class="pill no">late · {{ cell.reason or '—' }}</span>
+          {% elif cell.status == 'SEE_OTHER' %}<span class="pill">same as {{ cell.reason }}</span>
+          {% else %}<span class="pill">{{ cell.raw }}</span>{% endif %}
+        </td>
+      {% endfor %}
+      <td class="note">{{ r.one_up or '—' }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+
+{% if unknown %}
+<section style="margin-top:26px">
+  <h2>Not in the contact list</h2>
+  <p class="note">These names are on the sheet but have no contact entry, so they get no messages.
+     Add them under Settings: {{ unknown|map(attribute='cadet')|map(attribute='name')|join(', ') }}</p>
+</section>
+{% endif %}
+{% endblock %}

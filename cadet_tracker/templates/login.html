@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="hero">
+  <h1>Every cadet accounted for.</h1>
+  <p>Automatic reminders and pre-event rosters, built on the Corps' existing attendance sheet.</p>
+</div>
+<h2>Log in</h2>
+<p class="sub">Cadet leaders sign in to review this week and run reminders.</p>
+<form method="post" class="grid" style="max-width:320px">
+  <div>
+    <label for="p">Password</label>
+    <input id="p" type="password" name="password" autofocus style="width:100%">
+  </div>
+  <div><button type="submit" style="margin-top:22px">Sign in</button></div>
+</form>
+{% endblock %}

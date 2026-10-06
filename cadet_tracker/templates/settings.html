@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% set active = 'settings' %}
+{% block body %}
+<h1>Settings</h1>
+<p class="sub">Times, escalation rules and who hears about whom. Saved to config.yaml and contacts.yaml.</p>
+
+<section>
+<h2>Schedule</h2>
+<form method="post">
+<input type="hidden" name="form" value="schedule">
+<div class="grid">
+  <div><label for="sr">Sunday reminder</label>
+    <input id="sr" type="time" name="sunday_reminder" value="{{ s.sunday_reminder }}"></div>
+  <div><label for="rd">Response deadline (Sunday)</label>
+    <input id="rd" type="time" name="response_deadline" value="{{ s.response_deadline }}"></div>
+  <div><label for="pw">Final warning, minutes before deadline</label>
+    <input id="pw" type="number" min="0" name="preemptive_warning_minutes" value="{{ s.preemptive_warning_minutes }}"></div>
+  <div><label for="tu">Hours after deadline before the 2UP hears</label>
+    <input id="tu" type="number" min="0" name="two_up_delay_hours" value="{{ s.two_up_delay_hours }}"></div>
+  <div><label for="pe">Send the roster this many minutes before an event</label>
+    <input id="pe" type="number" min="0" name="pre_event_minutes" value="{{ s.pre_event_minutes }}"></div>
+  <div><label for="th">Misses before a cadet counts as repeat</label>
+    <input id="th" type="number" min="1" name="threshold" value="{{ cfg.history.repeat_offender_threshold }}"></div>
+  <div class="check"><input type="checkbox" id="ca" name="change_alerts" {{ 'checked' if s.change_alerts }}>
+    <label for="ca" style="margin:0">Alert the 1UP when an answer changes</label></div>
+  <div class="check"><input type="checkbox" id="dr" name="dry_run" {{ 'checked' if cfg.notify.dry_run }}>
+    <label for="dr" style="margin:0">Practice mode — log messages, send nothing</label></div>
+</div>
+
+<h2 style="margin-top:28px">Attendance sheet</h2>
+<div class="grid">
+  <div><label for="st">Source</label>
+    <select id="st" name="source_type">
+      <option value="gsheet" {{ 'selected' if cfg.source.type=='gsheet' }}>Google Sheet</option>
+      <option value="xlsx" {{ 'selected' if cfg.source.type=='xlsx' }}>Local Excel file</option>
+    </select></div>
+  <div><label for="sid">Google Sheet ID</label>
+    <input id="sid" type="text" name="sheet_id" value="{{ cfg.source.sheet_id }}" style="width:100%"></div>
+  <div><label for="pa">Excel file path</label>
+    <input id="pa" type="text" name="path" value="{{ cfg.source.path }}" style="width:100%"></div>
+  <div><label for="ws">Tab name</label>
+    <input id="ws" type="text" name="worksheet" value="{{ cfg.source.worksheet }}" style="width:100%"></div>
+</div>
+<p style="margin-top:20px"><button type="submit">Save schedule</button></p>
+</form>
+</section>
+
+<section>
+<h2>Cadets and chain of command</h2>
+<p class="note" style="margin-bottom:12px">Names must match the sheet exactly: Last, First.
+  Leave a row's name blank or tick Remove to drop it. Use the empty rows at the bottom to add people.</p>
+<form method="post">
+<div class="scroll">
+<table>
+  <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Carrier</th><th>Send by</th>
+    <th>Timing</th><th>Digest at</th><th>1UP</th><th>2UP</th><th>Role</th><th>Remove</th></tr></thead>
+  <tbody>
+  {% for key, c in contacts.items() %}
+    {% set c = c or {} %}
+    <tr>
+      <input type="hidden" name="row" value="{{ key }}">
+      <td><input type="text" name="name[{{ key }}]" value="{{ key }}" size="16"></td>
+      <td><input type="text" name="email[{{ key }}]" value="{{ c.email or '' }}" size="18"></td>
+      <td><input type="text" name="phone[{{ key }}]" value="{{ c.phone or '' }}" size="11"></td>
+      <td><select name="carrier[{{ key }}]">
+        <option value=""></option>
+        {% for g in ['verizon','att','tmobile','sprint','uscellular','googlefi'] %}
+          <option value="{{ g }}" {{ 'selected' if c.carrier==g }}>{{ g }}</option>{% endfor %}
+      </select></td>
+      <td><select name="channel[{{ key }}]">
+        {% for ch in ['email','sms','both'] %}
+          <option value="{{ ch }}" {{ 'selected' if c.channel==ch }}>{{ ch }}</option>{% endfor %}
+      </select></td>
+      <td><select name="timing[{{ key }}]">
+        {% for t in ['immediate','digest'] %}
+          <option value="{{ t }}" {{ 'selected' if c.timing==t }}>{{ t }}</option>{% endfor %}
+      </select></td>
+      <td><input type="time" name="digest_time[{{ key }}]" value="{{ c.digest_time or '' }}"></td>
+      <td><input type="text" name="one_up[{{ key }}]" value="{{ c.one_up or '' }}" size="14" list="people"></td>
+      <td><input type="text" name="two_up[{{ key }}]" value="{{ c.two_up or '' }}" size="14" list="people"></td>
+      <td><input type="text" name="role[{{ key }}]" value="{{ c.role or '' }}" size="5"></td>
+      <td style="text-align:center"><input type="checkbox" name="delete[{{ key }}]"></td>
+    </tr>
+  {% endfor %}
+  {% for i in range(3) %}
+    {% set key = 'new' ~ i %}
+    <tr>
+      <input type="hidden" name="row" value="{{ key }}">
+      <td><input type="text" name="name[{{ key }}]" placeholder="Last, First" size="16"></td>
+      <td><input type="text" name="email[{{ key }}]" size="18"></td>
+      <td><input type="text" name="phone[{{ key }}]" size="11"></td>
+      <td><select name="carrier[{{ key }}]"><option value=""></option>
+        {% for g in ['verizon','att','tmobile','sprint','uscellular','googlefi'] %}
+          <option value="{{ g }}">{{ g }}</option>{% endfor %}</select></td>
+      <td><select name="channel[{{ key }}]">
+        {% for ch in ['email','sms','both'] %}<option value="{{ ch }}">{{ ch }}</option>{% endfor %}</select></td>
+      <td><select name="timing[{{ key }}]">
+        {% for t in ['immediate','digest'] %}<option value="{{ t }}">{{ t }}</option>{% endfor %}</select></td>
+      <td><input type="time" name="digest_time[{{ key }}]"></td>
+      <td><input type="text" name="one_up[{{ key }}]" size="14" list="people"></td>
+      <td><input type="text" name="two_up[{{ key }}]" size="14" list="people"></td>
+      <td><input type="text" name="role[{{ key }}]" size="5"></td>
+      <td></td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+<datalist id="people">{% for p in people %}<option value="{{ p }}">{% endfor %}</datalist>
+<p style="margin-top:20px"><button type="submit">Save cadets</button></p>
+</form>
+</section>
+{% endblock %}

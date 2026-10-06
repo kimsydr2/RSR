@@ -1,0 +1,5 @@
+openpyxl>=3.1
+PyYAML>=6.0
+gspread>=6.0        # only needed for source.type: gsheet
+pytest>=8.0
+Flask>=3.0
